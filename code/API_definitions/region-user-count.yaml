@@ -1,0 +1,265 @@
+openapi: 3.0.3
+info:
+  title: Region User Count
+  description: |
+    This API allows for the API Consumer to Query the number of switch on users in the specified area.The query area can be a circle or a polygon composed of longitude and latitude points.
+  version: 0.1.0-wip
+  contact:
+    email: sp-ruc@lists.camaraproject.org
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
+externalDocs:
+  description: Project documentation at CAMARA
+  url: https://github.com/camaraproject/RegionUserCount
+servers:
+  - url: '{apiRoot}/regionUserCount/v0'
+    variables:
+      apiRoot:
+        default: http://localhost:9091
+        description: API root
+tags:
+  - name: Region User Count
+    description: This API allows for the API Consumer to Query the number of switch on users in the specified area.The query area can be a circle or a polygon composed of longitude and latitude points.
+paths:
+  /count:
+    post:
+      tags:
+        - Region User Count
+      summary: API operation to get the number of switch on users in the specified area.
+      description: |
+        get the number of switch on users in the specified area.
+        - The query area can be a circle or a polygon composed of longitude and latitude points.
+        - If the areaType is circle, the circleCenter and circleRadius must be provided; if the area is a polygon, the point list must be provided
+      operationId: count
+      parameters:
+        - in: header
+          name: X-Correlator
+          required: false
+          description: Correlation id for the different services
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegionUserCountRequestBody'
+        required: true
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Correlator:
+              description: Correlation id for the different services
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RegionUserCountResponse'
+        '400':
+          $ref: '#/components/responses/Generic400'
+        '401':
+          $ref: '#/components/responses/Generic401'
+        '403':
+          $ref: '#/components/responses/Generic403'
+        '500':
+          $ref: '#/components/responses/Generic500'
+        '503':
+          $ref: '#/components/responses/Generic503'
+        '504':
+          $ref: '#/components/responses/Generic504'
+      security:
+        - openId:
+          - region-user-count
+components:
+  securitySchemes:
+    openId:
+      type: openIdConnect
+      openIdConnectUrl: https://example.com/.well-known/openid-configuration
+  schemas:
+    RegionUserCountRequestBody:
+      type: object
+      description: Payload to get the user count of the specific region.
+      properties:
+        areaType:
+          type: string
+          description: |
+            Type of this area.
+            CIRCLE - The area is defined as a circle.
+            POLYGON - The area is defined as a polygon.
+          enum:
+            - CIRCLE
+            - POLYGON
+  
+        circle:
+          description: Circular area
+          allOf:
+            - type: object
+              required:
+                - center
+                - radius
+              properties:
+                center:
+                  $ref: "#/components/schemas/Point"
+                radius:
+                  type: number
+                  description: Distance from the center in meters
+                  minimum: 1
+    
+        polygon:
+          $ref: "#/components/schemas/PointList"
+    
+    PointList:
+      type: array
+      items:
+        $ref: "#/components/schemas/Point"
+      minItems: 3
+      maxItems: 15
+    
+    Point:
+      type: object
+      description: Coordinates (latitude, longitude) defining a location in a map,Compose polygonal regions
+      required:
+        - latitude
+        - longitude
+      properties:
+        latitude:
+          $ref: "#/components/schemas/Latitude"
+        longitude:
+          $ref: "#/components/schemas/Longitude"
+      example:
+        latitude: 31.22529
+        longitude: 121.48905
+  
+    Latitude:
+      description: Latitude component of a location
+      type: number
+      format: double
+      minimum: -90
+      maximum: 90
+  
+    Longitude:
+      description: Longitude component of location
+      type: number
+      format: double
+      minimum: -180
+      maximum: 180
+    RegionUserCountResponse:
+      type: object
+      description: RegionUserCount result
+      required:
+        - count
+      properties:
+        count:
+          $ref: '#/components/schemas/Count'
+    Count:
+      description: User Count
+      type: number
+    ErrorInfo:
+      type: object
+      required:
+        - status
+        - code
+        - message
+      properties:
+        status:
+          type: integer
+          description: HTTP response status code
+        code:
+          type: string
+          description: Code given to this error
+        message:
+          type: string
+          description: Detailed error description
+  responses:
+    Generic400:
+      description: Problem with the client request
+      headers:
+        X-Correlator:
+          description: Correlation id for the different services
+          schema:
+            type: string
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorInfo'
+          example:
+            status: 400
+            code: INVALID_ARGUMENT
+            message: "Client specified an invalid argument, request body or query param"
+    Generic401:
+      description: Authentication problem with the client request
+      headers:
+        X-Correlator:
+          description: Correlation id for the different services
+          schema:
+            type: string
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorInfo'
+          example:
+            status: 401
+            code: UNAUTHENTICATED
+            message: "Request not authenticated due to missing, invalid, or expired credentials"
+    Generic403:
+      description: Authentication problem with the client request
+      headers:
+        X-Correlator:
+          description: Correlation id for the different services
+          schema:
+            type: string
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorInfo'
+          example:
+            status: 403
+            code: PERMISSION_DENIED
+            message: "Operation not allowed: ..."
+    Generic500:
+      description: Server error
+      headers:
+        X-Correlator:
+          description: Correlation id for the different services
+          schema:
+            type: string
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorInfo'
+          example:
+            status: 500
+            code: INTERNAL
+            message: "Internal Server error"
+    Generic503:
+      description: Service unavailable. Typically the server is down.
+      headers:
+        X-Correlator:
+          description: Correlation id for the different services
+          schema:
+            type: string
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorInfo'
+          example:
+            status: 503
+            code: UNAVAILABLE
+            message: "Service unavailable"
+    Generic504:
+      description: Request time exceeded. If it happens repeatedly, consider reducing the request complexity
+      headers:
+        X-Correlator:
+          description: Correlation id for the different services
+          schema:
+            type: string
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorInfo'
+          example:
+            status: 504
+            code: TIMEOUT
+            message: "Request timeout exceeded. Try later."
