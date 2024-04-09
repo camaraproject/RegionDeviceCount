@@ -18,8 +18,8 @@ Repository to describe, develop, document and test the RegionUserCount API famil
 * Location: virtually  
 
 ## Meetings
-* Meetings will be held virtually. The first meeting will be on Friday, March 15th.
-* Schedule: Biweekly on Friday, 16:30-17:30(GMT+08:00) CST / 9:30-10:30 CET
+* Meetings will be held virtually. The next meeting will be on Friday, April 12th.
+* Schedule: Biweekly on Friday, 17:10-17:50(GMT+08:00) CST / 10:10-10:50 CET
 * Meeting link: https://teams.live.com/meet/9559310154416?p=X9GldgzTnpV6NUdx / Meeting ID: 955 931 015 441 6 PWD:V2RXNd
 
 ## Contributorship and mailing list
