@@ -18,9 +18,9 @@ Repository to describe, develop, document and test the RegionUserCount API famil
 * Location: virtually  
 
 ## Meetings
-* Meetings will be held virtually. The first meeting will be on Friday, March 15th.
-* Schedule: Biweekly on Friday, 16:30-17:30(GMT+08:00) CST / 9:30-10:30 CET
-* Meeting link: https://teams.live.com/meet/9559310154416?p=X9GldgzTnpV6NUdx / Meeting ID: 955 931 015 441 6 PWD:V2RXNd
+* Meetings will be held virtually. The next meeting will be on Friday, May 10th.
+* Schedule: Biweekly on Friday, 17:00 CST / 11:00 CET
+* Meeting link: https://teams.live.com/meet/9581805015812?p=W3PZd0mzDpWu5VIK
 
 ## Contributorship and mailing list
 * To subscribe / unsubscribe to the mailing list of this Sub Project and thus be / resign as Contributor please visit <https://lists.camaraproject.org/g/sp-ruc>.
