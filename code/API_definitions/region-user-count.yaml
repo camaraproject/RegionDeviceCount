@@ -3,7 +3,7 @@ info:
   title: Region User Count
   description: |
     This API allows for the API Consumer to Query the number of switch on users in the specified area.The query area can be a circle or a polygon composed of longitude and latitude points.
-  version: 0.1.0-wip
+  version: 0.1.1-wip
   contact:
     email: sp-ruc@lists.camaraproject.org
   license:
@@ -44,6 +44,11 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/RegionUserCountRequestBody'
+            examples:
+                LOCATION_CIRCLE:
+                  $ref: "#/components/examples/RETRIEVAL_CIRCLE"
+                LOCATION_POLYGON:
+                  $ref: "#/components/examples/RETRIEVAL_POLYGON"
         required: true
       responses:
         '200':
@@ -82,44 +87,67 @@ components:
       type: object
       description: Payload to get the user count of the specific region.
       properties:
+        area:
+          $ref: "#/components/schemas/Area"
+          
+    Area:
+      type: object
+      properties:
         areaType:
-          type: string
-          description: |
-            Type of this area.
-            CIRCLE - The area is defined as a circle.
-            POLYGON - The area is defined as a polygon.
-          enum:
-            - CIRCLE
-            - POLYGON
-  
-        circle:
-          description: Circular area
-          allOf:
-            - type: object
-              required:
-                - center
-                - radius
-              properties:
-                center:
-                  $ref: "#/components/schemas/Point"
-                radius:
-                  type: number
-                  description: Distance from the center in meters
-                  minimum: 1
-    
-        polygon:
-          $ref: "#/components/schemas/PointList"
-    
+          $ref: "#/components/schemas/AreaType"
+      required:
+        - areaType
+      discriminator:
+        propertyName: areaType
+        mapping:
+          CIRCLE: "#/components/schemas/Circle"
+          POLYGON: "#/components/schemas/Polygon"
+    AreaType:
+      type: string
+      description: |
+        Type of this area.
+        CIRCLE - The area is defined as a circle.
+        POLYGON - The area is defined as a polygon.
+      enum:
+        - CIRCLE
+        - POLYGON
+
+    Circle:
+      description: Circular area
+      allOf:
+        - $ref: "#/components/schemas/Area"
+        - type: object
+          required:
+            - center
+            - radius
+          properties:
+            center:
+              $ref: "#/components/schemas/Point"
+            radius:
+              type: number
+              description: Distance from the center in meters
+              minimum: 1
+
+    Polygon:
+      allOf:
+        - $ref: "#/components/schemas/Area"
+        - type: object
+          required:
+            - boundary
+          properties:
+            boundary:
+              $ref: "#/components/schemas/PointList"
+
     PointList:
       type: array
       items:
         $ref: "#/components/schemas/Point"
       minItems: 3
       maxItems: 15
-    
+
     Point:
       type: object
-      description: Coordinates (latitude, longitude) defining a location in a map,Compose polygonal regions
+      description: Coordinates (latitude, longitude) defining a location in a map
       required:
         - latitude
         - longitude
@@ -129,16 +157,16 @@ components:
         longitude:
           $ref: "#/components/schemas/Longitude"
       example:
-        latitude: 31.22529
-        longitude: 121.48905
-  
+        latitude: 50.735851
+        longitude: 7.10066
+
     Latitude:
       description: Latitude component of a location
       type: number
       format: double
       minimum: -90
       maximum: 90
-  
+
     Longitude:
       description: Longitude component of location
       type: number
@@ -263,3 +291,27 @@ components:
             status: 504
             code: TIMEOUT
             message: "Request timeout exceeded. Try later."
+  examples:
+    RETRIEVAL_CIRCLE:
+      value:
+        area:
+          areaType: CIRCLE
+          center:
+            latitude: 45.754114
+            longitude: 4.860374
+          radius: 800
+    RETRIEVAL_POLYGON:
+      value:
+        area:
+          areaType: POLYGON
+          boundary:
+            - latitude: 45.754114
+              longitude: 4.860374
+            - latitude: 45.753845
+              longitude: 4.863185
+            - latitude: 45.752490
+              longitude: 4.861876
+            - latitude: 45.751224
+              longitude: 4.861125
+            - latitude: 45.751442
+              longitude: 4.859827
