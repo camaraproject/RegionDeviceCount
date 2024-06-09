@@ -1,4 +1,4 @@
-| Org                    | Name                                                |
-| -----------------------| ----------------------------------------------------|
-| China Unicom | Yang Fan |
-| Huawei | Jin Xu |
+| Org                    | Name                   | GitHub Username             |
+| -----------------------| -----------------------|-----------------------------|
+| China Unicom | Yang Fan | chinaunicomyangfan |
+| Huawei | Jin Xu | philipxujin |
