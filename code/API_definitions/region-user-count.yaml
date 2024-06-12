@@ -62,6 +62,15 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/RegionUserCountResponse'
+              examples:
+                SUPPORTED_AREA:
+                  $ref: "#/components/examples/SUPPORTED_AREA"
+                PART_OF_AREA_NOT_SUPPORTED:
+                  $ref: "#/components/examples/PART_OF_AREA_NOT_SUPPORTED"
+                AREA_NOT_SUPPORTED:
+                  $ref: "#/components/examples/AREA_NOT_SUPPORTED"
+                DENSITY_BELOW_PRIVACY_THRESHOLD:
+                  $ref: "#/components/examples/DENSITY_BELOW_PRIVACY_THRESHOLD"
         '400':
           $ref: '#/components/responses/Generic400'
         '401':
@@ -181,9 +190,26 @@ components:
       properties:
         count:
           $ref: '#/components/schemas/Count'
+        status:
+          $ref: '#/components/schemas/Status'
     Count:
-      description: User Count
+      description: Device Count
       type: number
+    Status:
+      description: | 
+        SUPPORTED_AREA: The whole request area is supported Population density data for the entire requested area is returned - Telco Coverage = 100 %
+        
+        PART_OF_AREA_NOT_SUPPORTED: Part of the requested area is outside the MNOs coverage area, the cells outside the coverage area are not returned - 100% >Telco Coverage >=50%
+        
+        AREA_NOT_SUPPORTED:  The whole requested area is outside the MNO coverage area No data will be returned- Telco Coverage <50%
+        
+        DENSITY_BELOW_PRIVACY_THRESHOLD:  The number of connected devices is below privacy threshold of local regulation
+      type: string
+      enum:
+        - SUPPORTED_AREA
+        - PART_OF_AREA_NOT_SUPPORTED
+        - AREA_NOT_SUPPORTED
+        - DENSITY_BELOW_PRIVACY_THRESHOLD
     ErrorInfo:
       type: object
       required:
@@ -315,3 +341,18 @@ components:
               longitude: 4.861125
             - latitude: 45.751442
               longitude: 4.859827
+    SUPPORTED_AREA:
+      value:
+        count: 100
+        status: SUPPORTED_AREA
+    PART_OF_AREA_NOT_SUPPORTED:
+      value:
+        count: 100
+        status: PART_OF_AREA_NOT_SUPPORTED
+    AREA_NOT_SUPPORTED:
+      value:
+        status: AREA_NOT_SUPPORTED
+    DENSITY_BELOW_PRIVACY_THRESHOLD:
+      value:
+        status: DENSITY_BELOW_PRIVACY_THRESHOLD
+    
