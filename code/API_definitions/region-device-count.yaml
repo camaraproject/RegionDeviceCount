@@ -1,8 +1,8 @@
 openapi: 3.0.3
 info:
-  title: Region User Count
+  title: Region Device Count
   description: |
-    This API allows for the API Consumer to Query the number of switch on users in the specified area.The query area can be a circle or a polygon composed of longitude and latitude points.
+    This API allows for the API Consumer to Query the number of switch on devices in the specified area.The query area can be a circle or a polygon composed of longitude and latitude points.
   version: 0.1.1-wip
   contact:
     email: sp-ruc@lists.camaraproject.org
@@ -11,21 +11,21 @@ info:
     url: https://www.apache.org/licenses/LICENSE-2.0.html
 externalDocs:
   description: Project documentation at CAMARA
-  url: https://github.com/camaraproject/RegionUserCount
+  url: https://github.com/camaraproject/RegionDeviceCount
 servers:
-  - url: '{apiRoot}/regionUserCount/v0'
+  - url: '{apiRoot}/regionDeviceCount/v0'
     variables:
       apiRoot:
         default: http://localhost:9091
         description: API root
 tags:
-  - name: Region User Count
-    description: This API allows for the API Consumer to Query the number of switch on users in the specified area.The query area can be a circle or a polygon composed of longitude and latitude points.
+  - name: Region Device Count
+    description: This API allows for the API Consumer to Query the number of switch on devices in the specified area.The query area can be a circle or a polygon composed of longitude and latitude points.
 paths:
   /count:
     post:
       tags:
-        - Region User Count
+        - Region Device Count
       summary: API operation to get the number of switch on users in the specified area.
       description: |
         get the number of switch on users in the specified area.
@@ -43,7 +43,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/RegionUserCountRequestBody'
+              $ref: '#/components/schemas/RegionDeviceCountRequestBody'
             examples:
                 LOCATION_CIRCLE:
                   $ref: "#/components/examples/RETRIEVAL_CIRCLE"
@@ -61,7 +61,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/RegionUserCountResponse'
+                $ref: '#/components/schemas/RegionDeviceCountResponse'
         '400':
           $ref: '#/components/responses/Generic400'
         '401':
@@ -76,14 +76,14 @@ paths:
           $ref: '#/components/responses/Generic504'
       security:
         - openId:
-          - region-user-count
+          - region-device-count
 components:
   securitySchemes:
     openId:
       type: openIdConnect
       openIdConnectUrl: https://example.com/.well-known/openid-configuration
   schemas:
-    RegionUserCountRequestBody:
+    RegionDeviceCountRequestBody:
       type: object
       description: Payload to get the user count of the specific region.
       properties:
@@ -173,9 +173,9 @@ components:
       format: double
       minimum: -180
       maximum: 180
-    RegionUserCountResponse:
+    RegionDeviceCountResponse:
       type: object
-      description: RegionUserCount result
+      description: RegionDeviceCount result
       required:
         - count
       properties:

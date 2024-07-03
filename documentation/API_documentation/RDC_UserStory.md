@@ -1,4 +1,4 @@
-# RegionUserCount API User Story
+# RegionDeviceCount API User Story
 
 ## User Story 1 - Emergency Rescue
 
