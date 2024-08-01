@@ -18,7 +18,7 @@ Repository to describe, develop, document and test the RegionUserCount API famil
 * Location: virtually  
 
 ## Meetings
-* Meetings will be held virtually. The next meeting will be on Friday, May 10th.
+* Meetings will be held virtually. The next meeting will be on Friday, Aug 2nd.
 * Schedule: Biweekly on Friday, 17:00 CST / 11:00 CET
 * Meeting link: https://teams.live.com/meet/9581805015812?p=W3PZd0mzDpWu5VIK
 
