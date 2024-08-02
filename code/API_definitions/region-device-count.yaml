@@ -26,9 +26,9 @@ paths:
     post:
       tags:
         - Region Device Count
-      summary: API operation to get the number of switch on users in the specified area.
+      summary: API operation to get the number of switch on devices in the specified area.
       description: |
-        get the number of switch on users in the specified area.
+        get the number of switch on devices in the specified area.
         - The query area can be a circle or a polygon composed of longitude and latitude points.
         - If the areaType is circle, the circleCenter and circleRadius must be provided; if the area is a polygon, the point list must be provided
       operationId: count
@@ -94,7 +94,7 @@ components:
   schemas:
     RegionDeviceCountRequestBody:
       type: object
-      description: Payload to get the user count of the specific region.
+      description: Payload to get the count of devices in the specific region.
       properties:
         area:
           $ref: "#/components/schemas/Area"
