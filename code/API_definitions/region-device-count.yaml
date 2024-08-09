@@ -345,7 +345,7 @@ components:
             longitude: 4.860374
           radius: 800
         starttime: "2023-07-03T14:27:08.312+02:00"
-        endtime: "2023-07-03T14:27:08.312+02:00"
+        endtime: "2023-07-04T14:27:08.312+02:00"
     RETRIEVAL_POLYGON:
       value:
         area:
@@ -356,7 +356,7 @@ components:
             - latitude: 45.753845
               longitude: 4.863185
         starttime: "2023-07-03T14:27:08.312+02:00"
-        endtime: "2023-07-03T14:27:08.312+02:00"
+        endtime: "2023-07-04T14:27:08.312+02:00"
     SUPPORTED_AREA:
       value:
         count: 100
