@@ -2,7 +2,7 @@ openapi: 3.0.3
 info:
   title: Region Device Count
   description: |
-    This API allows for the API Consumer to Query the number of switch on devices in the specified area.The query area can be a circle or a polygon composed of longitude and latitude points.
+    This API allows for the API Consumer to Query the number of switch on devices in the specified area during a certain time window.The query area can be a circle or a polygon composed of longitude and latitude points.
   version: 0.1.1-wip
   contact:
     email: sp-ruc@lists.camaraproject.org
@@ -20,17 +20,24 @@ servers:
         description: API root
 tags:
   - name: Region Device Count
-    description: This API allows for the API Consumer to Query the number of switch on devices in the specified area.The query area can be a circle or a polygon composed of longitude and latitude points.
+    description: This API allows for the API Consumer to Query the number of switch on devices in the specified area during a certain time window.The query area can be a circle or a polygon composed of longitude and latitude points.
 paths:
   /count:
     post:
       tags:
         - Region Device Count
-      summary: API operation to get the number of switch on devices in the specified area.
+      summary: API operation to get the number of switch on devices in the specified area during a certain time window.
       description: |
-        get the number of switch on devices in the specified area.
+        Get the number of switch on devices in the specified area during a certain time window.
         - The query area can be a circle or a polygon composed of longitude and latitude points.
         - If the areaType is circle, the circleCenter and circleRadius must be provided; if the area is a polygon, the point list must be provided
+        
+        The starttime and endtime need to follow the following constraints
+        - The parameter starttime is recommended not to be earlier than 7 days from the current time.
+        - It is recommended not to exceed 1 day between the starttime and endtime
+        - The parameters starttime and endtime cannot be passed separately. Either both are passed or neither is passed.If both startTime and endTime are not passed, in actual calculation, considering that devices in idle state cannot be counted, a default time interval needs to be pushed forward from the current time, which is recommended to be 10 minutes
+        - If a device seen in different cells in the queried time interval (Endtime- StartTime), the last cell of the device should be returned . The device should be counted under the last seen cell.
+        
       operationId: count
       parameters:
         - in: header
@@ -98,7 +105,18 @@ components:
       properties:
         area:
           $ref: "#/components/schemas/Area"
-          
+        starttime: 
+          type: string
+          format: date-time
+          description: Starting timestamp for counting the number of devices in the area. It must follow [RFC 3339](https://datatracker.ietf.org/doc/html/rfc3339#section-5.6) and must have time zone. Recommended format is yyyy-MM-dd'T'HH:mm:ss.SSSZ (i.e. which allows 2023-07-03T14:27:08.312+02:00 or 2023-07-03T12:27:08.312Z)
+          nullable: true
+          example: "2023-07-03T14:27:08.312+02:00"
+        endtime: 
+          type: string
+          format: date-time
+          description: Ending timestamp for counting the number of devices in the area. It must follow [RFC 3339](https://datatracker.ietf.org/doc/html/rfc3339#section-5.6) and must have time zone. Recommended format is yyyy-MM-dd'T'HH:mm:ss.SSSZ (i.e. which allows 2023-07-04T14:27:08.312+02:00 or 2023-07-03T12:27:08.312Z)
+          nullable: true
+          example: "2023-07-04T14:27:08.312+02:00"
     Area:
       type: object
       properties:
@@ -326,6 +344,8 @@ components:
             latitude: 45.754114
             longitude: 4.860374
           radius: 800
+        starttime: "2023-07-03T14:27:08.312+02:00"
+        endtime: "2023-07-04T14:27:08.312+02:00"
     RETRIEVAL_POLYGON:
       value:
         area:
@@ -335,6 +355,8 @@ components:
               longitude: 4.860374
             - latitude: 45.753845
               longitude: 4.863185
+        starttime: "2023-07-03T14:27:08.312+02:00"
+        endtime: "2023-07-04T14:27:08.312+02:00"
     SUPPORTED_AREA:
       value:
         count: 100
