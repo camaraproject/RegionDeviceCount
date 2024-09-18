@@ -2,7 +2,7 @@ openapi: 3.0.3
 info:
   title: Region Device Count
   description: |
-    This API allows for the API Consumer to Query the number of switch on devices in the specified area during a certain time window.The query area can be a circle or a polygon composed of longitude and latitude points.
+    This API allows for the API Consumer to query device count in the specified area during a certain time interval.The query area can be a circle or a polygon composed of longitude and latitude points.
   version: 0.1.1-wip
   contact:
     email: sp-ruc@lists.camaraproject.org
@@ -20,32 +20,23 @@ servers:
         description: API root
 tags:
   - name: Region Device Count
-    description: This API allows for the API Consumer to Query the number of switch on devices in the specified area during a certain time window.The query area can be a circle or a polygon composed of longitude and latitude points.
+    description: This API allows for the API Consumer to query device count in the specified area during a certain time interval.The query area can be a circle or a polygon composed of longitude and latitude points.
 paths:
   /count:
     post:
       tags:
         - Region Device Count
-      summary: API operation to get the number of switch on devices in the specified area during a certain time window.
+      summary: API operation to get the device count in the specified area during a certain time interval.
       description: |
-        Get the number of switch on devices in the specified area during a certain time window.
+        Get the number of devices in the specified area during a certain time interval.
         - The query area can be a circle or a polygon composed of longitude and latitude points.
-        - If the areaType is circle, the circleCenter and circleRadius must be provided; if the area is a polygon, the point list must be provided
-        
-        The starttime and endtime need to follow the following constraints
-        - The parameter starttime is recommended not to be earlier than 7 days from the current time.
-        - It is recommended not to exceed 1 day between the starttime and endtime
-        - The parameters starttime and endtime cannot be passed separately. Either both are passed or neither is passed.If both startTime and endTime are not passed, in actual calculation, considering that devices in idle state cannot be counted, a default time interval needs to be pushed forward from the current time, which is recommended to be 10 minutes
-        - If a device seen in different cells in the queried time interval (Endtime- StartTime), the last cell of the device should be returned . The device should be counted under the last seen cell.
+        - If the areaType is circle, the circleCenter and circleRadius must be provided; if the area is a polygon, the point list must be provided.
+        - If starttime and endtime are not passed in,this api should return the current number of devices in the area.
+        - If the device appears in the specified area at least once during the certain time interval, it should be counted.
         
       operationId: count
       parameters:
-        - in: header
-          name: X-Correlator
-          required: false
-          description: Correlation id for the different services
-          schema:
-            type: string
+        - $ref: '#/components/parameters/x-correlator'
       requestBody:
         content:
           application/json:
@@ -61,10 +52,8 @@ paths:
         '200':
           description: OK
           headers:
-            X-Correlator:
-              description: Correlation id for the different services
-              schema:
-                type: string
+            x-correlator:
+             $ref: "#/components/headers/x-correlator"
           content:
             application/json:
               schema:
@@ -98,6 +87,18 @@ components:
     openId:
       type: openIdConnect
       openIdConnectUrl: https://example.com/.well-known/openid-configuration
+  headers:
+    x-correlator:
+      description: Correlation id for the different services
+      schema:
+        type: string
+  parameters:
+    x-correlator:
+      name: x-correlator
+      in: header
+      description: Correlation id for the different services
+      schema:
+        type: string
   schemas:
     RegionDeviceCountRequestBody:
       type: object
@@ -217,17 +218,20 @@ components:
       description: | 
         SUPPORTED_AREA: The whole requested area is supported Region Device Count for the entire requested area is returned - Telco Coverage = 100 %
         
-        PART_OF_AREA_NOT_SUPPORTED: Part of the requested area is outside the MNOs coverage area, the cells outside the coverage area are not returned - 100% >Telco Coverage >=50%
+        PART_OF_AREA_NOT_SUPPORTED: Part of the requested area is outside the MNOs coverage area, the area outside the coverage area are not returned - 100% >Telco Coverage >=50%
         
         AREA_NOT_SUPPORTED:  The whole requested area is outside the MNO coverage area No data will be returned- Telco Coverage <50%
         
         DENSITY_BELOW_PRIVACY_THRESHOLD:  The number of connected devices is below privacy threshold of local regulation
+        
+        TIME_INTERVAL_NO_DATA_FOUND: Unable to find device count data within the requested time interval
       type: string
       enum:
         - SUPPORTED_AREA
         - PART_OF_AREA_NOT_SUPPORTED
         - AREA_NOT_SUPPORTED
         - DENSITY_BELOW_PRIVACY_THRESHOLD
+        - TIME_INTERVAL_NO_DATA_FOUND
     ErrorInfo:
       type: object
       required:
@@ -246,95 +250,182 @@ components:
           description: Detailed error description
   responses:
     Generic400:
-      description: Problem with the client request
+      description: Bad Request
       headers:
-        X-Correlator:
-          description: Correlation id for the different services
-          schema:
-            type: string
+        x-correlator:
+          $ref: "#/components/headers/x-correlator"
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/ErrorInfo'
-          example:
-            status: 400
-            code: INVALID_ARGUMENT
-            message: "Client specified an invalid argument, request body or query param"
+            $ref: "#/components/schemas/ErrorInfo"
+          examples:
+            GENERIC_400_INVALID_ARGUMENT:
+              summary: Generic Invalid Argument
+              description: Invalid Argument. Generic Syntax Exception
+              value:
+                status: 400
+                code: INVALID_ARGUMENT
+                message: "Client specified an invalid argument, request body or query param."
+            GENERIC_400_TIME_INTERVAL_NOT_SATISFIABLE:
+              value:
+                status: 400
+                code: REGION_DEVICE_COUNT.TIME_INVALID_ARGUMENT
+                message: "starttime and endtime cannot be passed separately. Either both are passed or neither is passed."
+            GENERIC_400_INVALID_END_DATE:
+              value:
+                status: 400
+                code: REGION_DEVICE_COUNT.INVALID_END_DATE
+                message: "Indicated endTime is earlier than the startTime."
+            GENERIC_400_INVALID_CIRCLE_AREA:
+              value:
+                status: 400
+                code: REGION_DEVICE_COUNT.INVALID_CIRCLE_AREA
+                message: "Missing circle center or radius."
+            GENERIC_400_INVALID_POLYGON_AREA:
+              value:
+                status: 400
+                code: REGION_DEVICE_COUNT.INVALID_POLYGON_AREA
+                message: "The area is not a polygon shape or has an arbitrary complexity."
+            
     Generic401:
-      description: Authentication problem with the client request
+      description: Unauthorized
       headers:
-        X-Correlator:
-          description: Correlation id for the different services
-          schema:
-            type: string
+        x-correlator:
+          $ref: "#/components/headers/x-correlator"
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/ErrorInfo'
-          example:
-            status: 401
-            code: UNAUTHENTICATED
-            message: "Request not authenticated due to missing, invalid, or expired credentials"
+            $ref: "#/components/schemas/ErrorInfo"
+          examples:
+            GENERIC_401_UNAUTHENTICATED:
+              description: Request cannot be authenticated
+              value:
+                status: 401
+                code: UNAUTHENTICATED
+                message: Request not authenticated due to missing, invalid, or expired credentials.
+            GENERIC_401_AUTHENTICATION_REQUIRED:
+              description: New authentication is needed, authentication is no longer valid
+              value:
+                status: 401
+                code: AUTHENTICATION_REQUIRED
+                message: New authentication is required.
     Generic403:
-      description: Authentication problem with the client request
+      description: Client does not have sufficient permission
       headers:
-        X-Correlator:
-          description: Correlation id for the different services
-          schema:
-            type: string
+        x-correlator:
+          $ref: "#/components/headers/x-correlator"
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/ErrorInfo'
-          example:
-            status: 403
-            code: PERMISSION_DENIED
-            message: "Operation not allowed: ..."
+          examples:
+            PermissionDenied:
+              value:
+                status: 403
+                code: PERMISSION_DENIED
+                message: "Client does not have sufficient permissions to perform this action"
+    Generic404:
+      description: Not found
+      headers:
+        x-correlator:
+          $ref: "#/components/headers/x-correlator"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorInfo"
+          examples:
+            GENERIC_404_NOT_FOUND:
+              description: Resource is not found
+              value:
+                status: 404
+                code: NOT_FOUND
+                message: The specified resource is not found.
+    Generic405:
+      description: Method Not Allowed
+      headers:
+        x-correlator:
+          $ref: "#/components/headers/x-correlator"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorInfo"
+          examples:
+            GENERIC_405_METHOD_NOT_ALLOWED:
+              description: Invalid HTTP verb used with a given endpoint
+              value:
+                status: 405
+                code: METHOD_NOT_ALLOWED
+                message: The requested method is not allowed/supported on the target resource.
+    Generic429:
+      description: Too Many Requests
+      headers:
+        x-correlator:
+          $ref: "#/components/headers/x-correlator"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorInfo"
+          examples:
+            GENERIC_429_QUOTA_EXCEEDED:
+              description: Request is rejected due to exceeding a business quota limit
+              value:
+                status: 429
+                code: QUOTA_EXCEEDED
+                message: Either out of resource quota or reaching rate limiting.
+            GENERIC_429_TOO_MANY_REQUESTS:
+              description: API Server request limit is overpassed
+              value:
+                status: 429
+                code: TOO_MANY_REQUESTS
+                message: Either out of resource quota or reaching rate limiting.
     Generic500:
-      description: Server error
+      description: Internal Server Error
       headers:
-        X-Correlator:
-          description: Correlation id for the different services
-          schema:
-            type: string
+        x-correlator:
+          $ref: "#/components/headers/x-correlator"
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/ErrorInfo'
-          example:
-            status: 500
-            code: INTERNAL
-            message: "Internal Server error"
+            $ref: "#/components/schemas/ErrorInfo"
+          examples:
+            GENERIC_500_INTERNAL:
+              description: Problem in Server side. Regular Server Exception
+              value:
+                status: 500
+                code: INTERNAL
+                message: Unknown server error. Typically a server bug.
     Generic503:
-      description: Service unavailable. Typically the server is down.
+      description: Service Unavailable
       headers:
-        X-Correlator:
-          description: Correlation id for the different services
-          schema:
-            type: string
+        x-correlator:
+          $ref: "#/components/headers/x-correlator"
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/ErrorInfo'
-          example:
-            status: 503
-            code: UNAVAILABLE
-            message: "Service unavailable"
+            $ref: "#/components/schemas/ErrorInfo"
+          examples:
+            GENERIC_503_UNAVAILABLE:
+              description: Service is not available. Temporary situation usually related to maintenance process in the server side
+              value:
+                status: 503
+                code: UNAVAILABLE
+                message: Service Unavailable.
     Generic504:
-      description: Request time exceeded. If it happens repeatedly, consider reducing the request complexity
+      description: Gateway Timeout
       headers:
-        X-Correlator:
-          description: Correlation id for the different services
-          schema:
-            type: string
+        x-correlator:
+          $ref: "#/components/headers/x-correlator"
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/ErrorInfo'
-          example:
-            status: 504
-            code: TIMEOUT
-            message: "Request timeout exceeded. Try later."
+            $ref: "#/components/schemas/ErrorInfo"
+          examples:
+            GENERIC_504_TIMEOUT:
+              description: API Server Timeout
+              value:
+                status: 504
+                code: TIMEOUT
+                message: Request timeout exceeded.
   examples:
     RETRIEVAL_CIRCLE:
       value:
