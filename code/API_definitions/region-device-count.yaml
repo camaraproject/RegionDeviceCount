@@ -3,7 +3,7 @@ info:
   title: Region Device Count
   description: |
     This API allows for the API Consumer to query device count in the specified area during a certain time interval.The query area can be a circle or a polygon composed of longitude and latitude points.
-  version: 0.1.1-wip
+  version: wip
   contact:
     email: sp-ruc@lists.camaraproject.org
   license:
@@ -13,7 +13,7 @@ externalDocs:
   description: Project documentation at CAMARA
   url: https://github.com/camaraproject/RegionDeviceCount
 servers:
-  - url: '{apiRoot}/regionDeviceCount/v0'
+  - url: '{apiRoot}/regionDeviceCount/wip'
     variables:
       apiRoot:
         default: http://localhost:9091
