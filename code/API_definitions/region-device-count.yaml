@@ -205,8 +205,13 @@ components:
       maximum: 180
     Filter:
       description: | 
-        This parameter is used to filter devices. Currently, two filtering criteria are defined, `roamingStatus` and `deviceType`, which can be expanded in the future. `IN` logic is used within one filtering criterion, `AND` logic is used between multiple filtering criteria. If no filtering criteria are passed, it means no filtering is required. 
-        - For example ,`"filter":{"roamingStatus": ["roaming"],"deviceType": ["human device","IoT device"]}` means the API need to return the count of human network devices and IoT devices that are in roaming mode.`"filter":{"roamingStatus": ["non-roaming"]}` means that the API need to return the count of all devices that are not in roaming mode.
+        This parameter is used to filter devices. Currently, two filtering criteria are defined, `roamingStatus` and `deviceType`, which can be expanded in the future. 
+        `IN` logic is used used for multiple filtering items within a single filtering criterion, `AND` logic is used between multiple filtering criteria.
+        - If a filtering critera is not provided, it means that there is no need to filter this item.
+        - At least one of the criteria must be provided,a filter without any criteria is not allowed.
+        - If no filtering is required, this parameter does not need to be provided.
+        For example ,`"filter":{"roamingStatus": ["roaming"],"deviceType": ["human device","IoT device"]}` means the API need to return the count of human network devices and IoT devices that are in roaming mode.
+        `"filter":{"roamingStatus": ["non-roaming"]}` means that the API need to return the count of all devices that are not in roaming mode.
       type: object
       properties: 
         roamingStatus: 
