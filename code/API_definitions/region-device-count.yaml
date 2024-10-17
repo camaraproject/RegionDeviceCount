@@ -118,6 +118,8 @@ components:
           description: Ending timestamp for counting the number of devices in the area. It must follow [RFC 3339](https://datatracker.ietf.org/doc/html/rfc3339#section-5.6) and must have time zone. Recommended format is yyyy-MM-dd'T'HH:mm:ss.SSSZ (i.e. which allows 2023-07-04T14:27:08.312+02:00 or 2023-07-03T12:27:08.312Z)
           nullable: true
           example: "2023-07-04T14:27:08.312+02:00"
+        filter: 
+          $ref: "#/components/schemas/Filter"
     Area:
       type: object
       properties:
@@ -201,6 +203,59 @@ components:
       format: double
       minimum: -180
       maximum: 180
+    Filter:
+      description: | 
+        This parameter is used to filter devices. Currently, two filtering criteria are defined, `roamingStatus` and `deviceType`, which can be expanded in the future. `IN` logic is used used for multiple filtering items within a single filtering criterion, `AND` logic is used between multiple filtering criteria.
+        - If a filtering critera is not provided, it means that there is no need to filter this item. 
+        - At least one of the criteria must be provided,a filter without any criteria is not allowed.
+        - If no filtering is required, this parameter does not need to be provided.
+        For example ,`"filter":{"roamingStatus": ["roaming"],"deviceType": ["human device","IoT device"]}` means the API need to return the count of human network devices and IoT devices that are in roaming mode.`"filter":{"roamingStatus": ["non-roaming"]}` means that the API need to return the count of all devices that are not in roaming mode.
+      type: object
+      anyOf:
+        - type: object
+          properties: 
+            roamingStatus: 
+              description: Filter whether the device is in roaming mode,'roaming' represents the need to filter devices that are in roaming mode,'non-roaming' represents the need to filter devices that are not roaming.
+              type: array
+              items:
+                type: string
+                enum:
+                  - 'roaming'
+                  - 'non-roaming'
+              minItems: 1
+        - type: object
+          properties: 
+            deviceType: 
+              description: Filtering by device type, 'human device' represents the need to filter for human network devices, 'IoT device' represents the need to filter for IoT devices, and 'other' represents the need to filter for other types of devices.
+              type: array
+              items:
+                type: string
+                enum:
+                  - 'human device'
+                  - 'IoT device'
+                  - 'other'
+              minItems: 1
+        - type: object
+          properties: 
+            roamingStatus: 
+              description: Filter whether the device is in roaming mode,'roaming' represents the need to filter devices that are in roaming mode,'non-roaming' represents the need to filter devices that are not roaming.
+              type: array
+              items:
+                type: string
+                enum:
+                  - 'roaming'
+                  - 'non-roaming'
+              minItems: 1
+            deviceType: 
+              description: Filtering by device type, 'human device' represents the need to filter for human network devices, 'IoT device' represents the need to filter for IoT devices, and 'other' represents the need to filter for other types of devices.
+              type: array
+              items:
+                type: string
+                enum:
+                  - 'human device'
+                  - 'IoT device'
+                  - 'other'
+              minItems: 1
     RegionDeviceCountResponse:
       type: object
       description: RegionDeviceCount result
@@ -437,6 +492,9 @@ components:
           radius: 800
         starttime: "2023-07-03T14:27:08.312+02:00"
         endtime: "2023-07-04T14:27:08.312+02:00"
+        filter:
+          roamingStatus: ["roaming"]
+          deviceType: ["human device","IoT device"]
     RETRIEVAL_POLYGON:
       value:
         area:
@@ -448,6 +506,9 @@ components:
               longitude: 4.863185
         starttime: "2023-07-03T14:27:08.312+02:00"
         endtime: "2023-07-04T14:27:08.312+02:00"
+        filter:
+          roamingStatus: ["non-roaming"]
+          deviceType: ["other"]
     SUPPORTED_AREA:
       value:
         count: 100
