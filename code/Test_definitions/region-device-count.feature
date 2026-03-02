@@ -1,4 +1,4 @@
-Feature: CAMARA Region Device Count API v0.2.0 - Operations for device count in specified area
+Feature: CAMARA Region Device Count API vwip - Operations for device count in specified area
 
 # Input to be provided by the implementation to the tester
 #
@@ -16,11 +16,11 @@ Feature: CAMARA Region Device Count API v0.2.0 - Operations for device count in 
 # * An Area outside the supported region
 # * A combination of request parameters including area, start time, and end time, such that the number of connected devices in the area is below the local regulatory privacy threshold
 #
-# References to OAS spec schemas refer to schemas specifies in region-device-count.yaml, version 0.2.0
+# References to OAS spec schemas refer to schemas specifies in region-device-count.yaml
 
   Background: Common Region Device Count setup
     Given an environment at "apiRoot"
-    And the resource "/region-device-count/v0.2/count"
+    And the resource "/region-device-count/vwip/count"
     And the header "Content-Type" is set to "application/json"
     And the header "Authorization" is set to a valid access token
     And the header "x-correlator" complies with the schema at "#/components/schemas/XCorrelator"
